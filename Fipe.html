@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela Fipe</title>
+    <script type="text/javascript" src="jquery/jquery-3.6.0.js"></script>
+    <script type="text/json" src="https://parallelum.com.br/fipe/api/v1/carros/marcas"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/Fipe/sweetalert2-11.1.5/package/dist/sweetalert2.all.min.js"></script>
+    <linkrel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    
+
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function(){
+            $("#tabela").hide();
+            $("#marca").append("<option value=''>Selecione uma marca..</option>");
+            $("#modelo").append("<option value=''>Selecione um modelo..</option>");
+            $("#ano").append("<option value=''>Selecione o ano..</option>");
+            $("#tabelac").hide();
+            $("#marcac").append("<option value=''>Selecione uma marca..</option>");
+            $("#modeloc").append("<option value=''>Selecione um modelo..</option>");
+            $("#anoc").append("<option value=''>Selecione o ano..</option>");
+            $.ajax({url: "https://parallelum.com.br/fipe/api/v1/carros/marcas", success: function(result){
+                $.each(result,function(index,value){
+                    $("#marca").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                })
+            }});
+            $("#marca").change(function(){
+                $("#modelo").html('');
+                $("#ano").html('');
+                $("#modelo").append("<option value=''>Selecione um modelo..</option>");
+                $("#ano").append("<option value=''>Selecione o ano..</option>");
+                var id_marca = $(this).val();
+
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/carros/marcas/"+id_marca+"/modelos", success: function(result){
+                    $.each(result["modelos"],function(index,value){
+                        $("#modelo").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                    $.each(result["anos"],function(index,value){
+                        $("#ano").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                }});
+            });
+            $("#modelo").change(function(){
+                $("#ano").html('');
+                $("#ano").append("<option value=''>Selecione o ano..</option>");
+                var id_modelo = $(this).val();
+                var id_marca = $('#marca').val();
+
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/carros/marcas/"+id_marca+"/modelos/"+id_modelo+"/anos", success: function(result){
+                    $.each(result,function(index,value){
+                        $("#ano").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                }});
+            });
+            $("#aparecer").click(function(){
+
+                var id_marca = $('#marca').val();
+                var id_modelo = $('#modelo').val();
+                var id_ano = $('#ano').val();
+                if(!id_marca || !id_modelo || !id_ano ){
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Todos os campos são obrigatórios!',
+                    showClass: {
+                        popup: 'animate__backInDown',
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__backOutLeft',
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                    })
+                }
+                if(id_marca && id_modelo && id_ano ) {
+                    $("#tabela").fadeIn(2000);
+                }
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/carros/marcas/"+id_marca+"/modelos/"+id_modelo+"/anos/"+id_ano, success: function(result){
+                        $("#res_valor").html(result['Valor']);
+                        $("#res_marca").html(result['Marca']);
+                        $("#res_modelo").html(result['Modelo']);
+                        $("#res_anomodelo").html(result['AnoModelo']);
+                        $("#res_combustivel").html(result['Combustivel']);
+                        $("#res_codigofipe").html(result['CodigoFipe']);
+                        $("#res_mesreferencia").html(result['MesReferencia']);
+                        $("#res_tipoveiculo").html(result['TipoVeiculo']);
+                        $("#res_siglacombustivel").html(result['SiglaCombustivel']);
+                }});
+            });
+            //caminhão
+            $.ajax({url: "https://parallelum.com.br/fipe/api/v1/caminhoes/marcas", success: function(result){
+                $.each(result,function(index,value){
+                    $("#marcac").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                })
+            }});
+            $("#marcac").change(function(){
+                $("#modeloc").html('');
+                $("#anoc").html('');
+                $("#modeloc").append("<option value=''>Selecione um modelo..</option>");
+                $("#anoc").append("<option value=''>Selecione o ano..</option>");
+                var id_marcac = $(this).val();
+
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/caminhoes/marcas/"+id_marcac+"/modelos", success: function(result){
+                    $.each(result["modelos"],function(index,value){
+                        $("#modeloc").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                    $.each(result["anos"],function(index,value){
+                        $("#anoc").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                }});
+            });
+            $("#modeloc").change(function(){
+                $("#anoc").html('');
+                $("#anoc").append("<option value=''>Selecione o ano..</option>");
+                var id_modeloc = $(this).val();
+                var id_marcac = $('#marcac').val();
+
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/caminhoes/marcas/"+id_marcac+"/modelos/"+id_modeloc+"/anos", success: function(result){
+                    $.each(result,function(index,value){
+                        $("#anoc").append("<option value="+value['codigo']+">"+value['nome']+"</option>");
+                    });
+                }});
+            });
+            $("#aparecerc").click(function(){
+
+                var id_marcac = $('#marcac').val();
+                var id_modeloc = $('#modeloc').val();
+                var id_anoc = $('#anoc').val();
+                if(!id_marcac || !id_modeloc || !id_anoc ){
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Todos os campos são obrigatórios!',
+                    showClass: {
+                        popup: 'animate__backInDown',
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__backOutLeft',
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                    })
+                }
+                if(id_marcac && id_modeloc && id_anoc ) {
+                    $("#tabelac").fadeIn(2000);
+                }
+                $.ajax({url: "https://parallelum.com.br/fipe/api/v1/caminhoes/marcas/"+id_marcac+"/modelos/"+id_modeloc+"/anos/"+id_anoc, success: function(result){
+                        $("#res_valorc").html(result['Valor']);
+                        $("#res_marcac").html(result['Marca']);
+                        $("#res_modeloc").html(result['Modelo']);
+                        $("#res_anomodeloc").html(result['AnoModelo']);
+                        $("#res_combustivelc").html(result['Combustivel']);
+                        $("#res_codigofipec").html(result['CodigoFipe']);
+                        $("#res_mesreferenciac").html(result['MesReferencia']);
+                        $("#res_tipoveiculoc").html(result['TipoVeiculo']);
+                        $("#res_siglacombustivelc").html(result['SiglaCombustivel']);
+                }});
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    <div  class="container">
+        <div>
+            <img src="fipe-logo-1024x843.png" class="rounded float-start-mx-auto" alt="...">
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="navbar-brand">
+                            <a class="nav-link" href="#">ÍNDICES E INDICADORES</a>
+                        </li>
+                        <li class="navbar-brand">
+                            <a class="nav-link" href="#">ENSINO</a>
+                        </li>
+                        <li class="navbar-brand">
+                            <a class="nav-link" href="#">PROJETOS E PESQUISA</a>
+                        </li>
+                        <li class="navbar-brand">
+                            <a class="nav-link" href="#">PUBLICAÇÕES</a>
+                        </li>
+                        <li class="navbar-brand">
+                            <a class="nav-link" href="#">SOBRE A FIPE</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Pesquisar</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="">
+                    <h1>Preço Médio de Veículos</h1>
+                    <p>
+                    1. A Tabela Fipe expressa preços médios de veículos anunciados pelos vendedores, no mercado nacional, servindo apenas como um parâmetro para negociações ou avaliações. Os preços efetivamente praticados variam em função da região, conservação, cor, acessórios ou qualquer outro fator que possa influenciar as condições de oferta e procura por um veículo específico.
+                    </p>
+                    <p>2. O ano do veículo refere-se ao ano do modelo e não são considerados veículos para uso profissional ou especial.</p>
+        
+                    <p>3. Os valores são expressos em R$ (reais) do mês/ano de referência.
+                    </p>
+                    Veja as explicações no vídeo:
+        
+                    <div>
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/56alfHaU5Fs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <u>Comunicado importante</u>
+                    <p>
+                        <a><img src="https://www.fipe.org.br/Content/img/google-play.png"></a>
+                        <a><img src="https://www.fipe.org.br/Content/img/play-store.png"></a>
+                    </p>
+                    <p><strong>NÃO disponibilizamos download de qualquer tipo de arquivo</strong>, contendo a base completa ou parcial.</p>
+                </div>
+                <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <img src="https://www.fipe.org.br/Content/img/indices/ico_carros.png"> Consulta de carro e ultilitários pequenos
+                          </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <p>Informe primeiro a <b>marca do veículo</b> e depois o <b>modelo</b> e o <b>ano modelo</b> na ordem que desejar.Você também pode digitar a imformação no campo "busca", dentro de cada opção do formulário da pesquisa.</p>
+                                <div>
+                                    <select id="marca" type="text" name="marca" list="marcas">
+                                    </select>
+                                </div>
+                                <div>
+                                    <select id="modelo" type="text" name="modelo" list="modelos">
+                                    </select>
+                                </div>
+                                <div>
+                                    <select id="ano" type="text" name="ano" list="anos">
+                                    </select>
+                                </div>
+                                <div>
+                                    <input class="botao"type="button" value="Pesquisar" id="aparecer">
+                                </div>
+                                <div class="accordion" id="accordionExample">
+                                    <div>
+                                        <table id="tabela" class="table">
+                                            <tr>
+                                                <th>Marca</th>
+                                                <th id="res_marca"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Modelo</th>
+                                                <th id="res_modelo"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Ano Modelo</th>
+                                                <th id="res_anomodelo"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Combustivel</th>
+                                                <th id="res_combustivel"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Codigo Fipe</th>
+                                                <th id="res_codigofipe"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Mês Referência</th>
+                                                <th id="res_mesreferencia"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Tipo Veiculo</th>
+                                                <th id="res_tipoveiculo"></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Sigla Combustivel</th>
+                                                <th id="res_siglacombustivel"></th>
+                                            </tr>
+                                            <tr class="table-success">
+                                                <th >Valor</th>
+                                                <th id="res_valor"></th>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <img src="https://www.fipe.org.br/Content/img/indices/ico_caminhao.png" height="142px"> Consulta de caminhões e micro-ônibus
+                              </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <p>Informe primeiro a <b>marca do veículo</b> e depois o <b>modelo</b> e o <b>ano modelo</b> na ordem que desejar.Você também pode digitar a imformação no campo "busca", dentro de cada opção do formulário da pesquisa.</p>
+                                    <div>
+                                        <select id="marcac" type="text" name="marca" list="marcas">
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <select id="modeloc" type="text" name="modelo" list="modelos">
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <select id="anoc" type="text" name="ano" list="anos">
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <input class="botao"type="button" value="Pesquisar" id="aparecerc">
+                                    </div>
+                                    <div class="accordion" id="accordionExample">
+                                        <div>
+                                            <table id="tabelac" class="table">
+                                                <tr>
+                                                    <th>Marca</th>
+                                                    <th id="res_marcac"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Modelo</th>
+                                                    <th id="res_modeloc"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Ano Modelo</th>
+                                                    <th id="res_anomodeloc"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Combustivel</th>
+                                                    <th id="res_combustivelc"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Codigo Fipe</th>
+                                                    <th id="res_codigofipec"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Mês Referência</th>
+                                                    <th id="res_mesreferenciac"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Tipo Veiculo</th>
+                                                    <th id="res_tipoveiculoc"></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Sigla Combustivel</th>
+                                                    <th id="res_siglacombustivelc"></th>
+                                                </tr>
+                                                <tr class="table-successc">
+                                                    <th >Valor</th>
+                                                    <th id="res_valorc"></th>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                <img src="https://www.fipe.org.br/Content/img/indices/ico_moto.png"> Consulta de motos
+                              </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <p>Informe primeiro a <b>marca do veículo</b> e depois o <b>modelo</b> e o <b>ano modelo</b> na ordem que desejar.Você também pode digitar a imformação no campo "busca", dentro de cada opção do formulário da pesquisa.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+</body>
+</html>
